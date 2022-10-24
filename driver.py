@@ -5,6 +5,10 @@ from node import MakeGoal
 state = np.array([[1,2,3],
                   [4,8,0],
                   [7,6,5]])
+#state = np.array([[8,1,2],
+#                  [0,4,3],
+#                  [7,6,5]])
+#
 
 root = node.Node(state, None, 0, 0, 0)
 # def __init__(self, BoardState, Parent, Depth, PathCost, HeuristicCost):

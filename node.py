@@ -19,7 +19,7 @@ class Node:
         # returns the resulting board state after moving the blank node left
         # index of the empty value 
         idx = np.where(self.BoardState == 0)
-        if(idx[0] <= 0):
+        if(idx[1] <= 0):
             return None, False
         else:
              # create a new state with the 0 value moved
@@ -85,12 +85,13 @@ class Node:
         visited = set([]) # for avoiding duplicate states
         depthq = [(0,0)] # queue of all the depths
         pathcostq = [0] # queue of all the path costs
-
+        print(nodes[0][0].BoardState)
         while(nodes):
             node = nodes.pop()[0]
+            print(node.BoardState)
             visited.add(tuple(node.BoardState.flatten()))
 
-            if(node.GoalTest(GoalState)):
+            if(node.GoalTest(GoalState) == True):
                 return node
             nodes, depthq, pathcostq = QueueingFunction(nodes, node, visited, depthq, pathcostq) 
             # ... 
