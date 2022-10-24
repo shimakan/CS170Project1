@@ -92,7 +92,7 @@ class Node:
             visited.add(tuple(node.BoardState.flatten()))
 
             if(node.GoalTest(GoalState) == True):
-                return node
+                return node.BoardState
             nodes, depthq, pathcostq = QueueingFunction(nodes, node, visited, depthq, pathcostq) 
             # ... 
 
@@ -146,6 +146,12 @@ class Node:
         depthq = sorted(depthq, key=lambda x:x[1], reverse = True)
         pathcostq = sorted(pathcostq, key=lambda x:x, reverse = True)
         return nodes, depthq, pathcostq
+
+def MisplacedTile():
+    # f(n) = g(n) + h(n)
+    # g(n) is the path cost
+    # h(n) is the sum of all misplaced tiles 
+    pass
 
 def MakeGoal(num):
     #generic goal state maker
