@@ -3,11 +3,11 @@ import node
 from node import MakeGoal
 #from node import *
 state = np.array([[1,2,3],
-                  [4,5,6],
-                  [7,8,0]])
+                  [4,8,0],
+                  [7,6,5]])
 
-root = node.Node(state, None, 0, 0, 0, 0)
-# def __init__(self, BoardState, Parent, Depth, StepCost, PathCost, HeuristicCost):
+root = node.Node(state, None, 0, 0, 0)
+# def __init__(self, BoardState, Parent, Depth, PathCost, HeuristicCost):
 
 # test successive moves (expansion)
 # state = root.MoveDown()
@@ -26,6 +26,7 @@ s = np.array([[1,2,3],
               [4,5,6],
               [7,8,0]])
 g = MakeGoal(8)
-print(f"Goal \n {g}\n")
-dummy = node.Node(s, None, 0, 0, 0, 0)
-print(dummy.GoalTest(g))
+print(root.GeneralSearch(root.UniformCost, g).BoardState)
+#print(f"Goal \n {g}\n")
+#dummy = node.Node(s, None, 0, 0, 0)
+#print(dummy.GoalTest(g))
