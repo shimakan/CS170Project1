@@ -85,21 +85,22 @@ class Node:
         visited = set([]) # for avoiding duplicate states
         depthq = [(0,0)] # queue of all the depths
         pathcostq = [0] # queue of all the path costs
-        print(nodes[0][0].BoardState)
+        #print(nodes[0][0].HeuristicCost)
         while(nodes):
             node = nodes.pop()[0]
-            print(node.BoardState)
+            #print(node.BoardState)
+            print(f"Heuristic Cost: {node.HeuristicCost}, Depth: {node.Depth} \n {node.BoardState} \n")
             visited.add(tuple(node.BoardState.flatten()))
 
             if(node.GoalTest(GoalState) == True):
                 return node.BoardState
-            nodes, depthq, pathcostq = QueueingFunction(nodes, node, visited, depthq, pathcostq) 
+            nodes, depthq, pathcostq = QueueingFunction(nodes, node, visited, depthq, pathcostq, GoalState) 
             # ... 
 
         # if the queue is empty, no solution was found 
         return "failure"
 
-    def UniformCost(self, nodes, node, visited, depthq, pathcostq):
+    def UniformCost(self, nodes, node, visited, depthq, pathcostq, goal):
         # uniform cost search
         # enqueue nodes in order of cumulative cost
         depth = depthq.pop()[0]
@@ -147,11 +148,56 @@ class Node:
         pathcostq = sorted(pathcostq, key=lambda x:x, reverse = True)
         return nodes, depthq, pathcostq
 
-def MisplacedTile():
+    def MisplacedTile(self, nodes, node, visited, depthq, pathcostq, goal):
     # f(n) = g(n) + h(n)
-    # g(n) is the path cost
-    # h(n) is the sum of all misplaced tiles 
-    pass
+    # g(n) is a function of depth
+    # h(n) is the sum of all misplaced tiles
+        depth = depthq.pop()[0]
+        cost = pathcostq.pop()
+        if(node.MoveLeft()[1]):
+            state = node.MoveLeft()[0]
+            if tuple(state.flatten()) not in visited:
+                misplaced = np.sum(state != goal)
+                node.left = Node(BoardState = state, Parent = node,\
+                                 Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
+                nodes.append((node.left, node.PathCost))
+                depthq.append((depth + 1, node.PathCost))
+                pathcostq.append(node.PathCost)
+        # check validity of down
+        if(node.MoveDown()[1]):
+            state = node.MoveDown()[0]
+            if tuple(state.flatten()) not in visited:
+                misplaced = np.sum(state != goal)
+                node.down = Node(BoardState = state, Parent = node,\
+                                 Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
+                nodes.append((node.down, node.PathCost))
+                depthq.append((depth + 1, node.PathCost))
+                pathcostq.append(node.PathCost)
+        # check validity of up
+        if(node.MoveUp()[1]):
+            state = node.MoveUp()[0]
+            if tuple(state.flatten()) not in visited:
+                misplaced = np.sum(state != goal)
+                node.up = Node(BoardState = state, Parent = node,\
+                                 Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
+                nodes.append((node.up, node.PathCost))
+                depthq.append((depth + 1, node.PathCost))
+                pathcostq.append(node.PathCost)
+        # check validity right
+        if(node.MoveRight()[1]):
+            state = node.MoveRight()[0]
+            if tuple(state.flatten()) not in visited:
+                misplaced = np.sum(state != goal)
+                node.right = Node(BoardState = state, Parent = node,\
+                                 Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
+                nodes.append((node.right, node.PathCost))
+                depthq.append((depth + 1, node.PathCost))
+                pathcostq.append(node.PathCost)
+
+        nodes = sorted(nodes, key=lambda x:x[1], reverse = True)
+        depthq = sorted(depthq, key=lambda x:x[1], reverse = True)
+        pathcostq = sorted(pathcostq, key=lambda x:x, reverse = True)
+        return nodes, depthq, pathcostq
 
 def MakeGoal(num):
     #generic goal state maker
