@@ -20,6 +20,7 @@ class Node:
         # index of the empty value 
         idx = np.where(self.BoardState == 0)
         if(idx[1] <= 0):
+            # not possible to move left
             return None, False
         else:
              # create a new state with the 0 value moved
@@ -35,6 +36,7 @@ class Node:
         # index of the empty value 
         idx = np.where(self.BoardState == 0)
         if(idx[0] >= self.BoardState.shape[0] - 1):
+            # not possible to move down
             return None, False
         else:
              # create a new state with the 0 value moved
@@ -49,6 +51,7 @@ class Node:
         # index of the empty value 
         idx = np.where(self.BoardState == 0)
         if(idx[0] <= 0):
+            # not possible to move up
             return None, False
         else:
              # create a new state with the 0 value moved
@@ -63,7 +66,7 @@ class Node:
         # index of the empty value 
         idx = np.where(self.BoardState == 0)
         if(idx[1] >= self.BoardState.shape[0] - 1):
-            # print(self.BoardState.shape[0] - 1)
+            # not possible to move right
             return None, False
         else:
              # create a new state with the 0 value moved
@@ -76,15 +79,12 @@ class Node:
     def GoalTest(self,GoalState): 
         return np.array_equal(self.BoardState, GoalState)
 
-    #def QueueingFunction(node):
-        # chooses the search method?
-        pass
-
     def GeneralSearch(self, QueueingFunction, GoalState):
         nodes = [(self,0)] # queue of nodes
         visited = set([]) # for avoiding duplicate states
         depthq = [(0,0)] # queue of all the depths
         pathcostq = [0] # queue of all the path costs
+        nodesExpanded = 0
 
         idxs = {} # dictionary {key = int : value = (x,y) coordinate of val in goal array}
                   # used in manhattan distance heuristic
@@ -93,16 +93,15 @@ class Node:
                 idxs[GoalState[i, j]] = tuple([i,j])
 
         while(nodes):
-            node = nodes.pop()[0]
-            #print(node.BoardState)
-            print(f"Heuristic Cost: {node.HeuristicCost}, Depth: {node.Depth} \n {node.BoardState} \n")
+            node = nodes.pop()[0] 
+            print(f"Best Node: h(n): {node.HeuristicCost}, g(n): {node.PathCost} \n {node.BoardState} \n")
             visited.add(tuple(node.BoardState.flatten()))
 
             if(node.GoalTest(GoalState) == True):
+                print(f"Depth: {node.Depth}, Nodes Expanded: {nodesExpanded}")
                 return node.BoardState
+            nodesExpanded += 1
             nodes, depthq, pathcostq = QueueingFunction(nodes, node, visited, depthq, pathcostq, GoalState, idxs) 
-            # ... 
-
         # if the queue is empty, no solution was found 
         return "failure"
 
@@ -111,7 +110,6 @@ class Node:
         # enqueue nodes children of expanded nodes in order of cumulative cost
         depth = depthq.pop()[0]
         cost = pathcostq.pop()
-
         # check validity left
         if(node.MoveLeft()[1]):
             state = node.MoveLeft()[0]
@@ -209,7 +207,6 @@ class Node:
     def Manhattan(self, nodes, node, visited, depthq, pathcostq, goal, idxs):
         depth = depthq.pop()[0]
         cost = pathcostq.pop()
-
         if(node.MoveLeft()[1]):
             state = node.MoveLeft()[0]
             if tuple(state.flatten()) not in visited:
@@ -263,7 +260,6 @@ def man(arr, goal, idxs):
         for j in range(np.shape(goal)[1]):
             msum += abs((i - idxs[arr[i,j]][0])) + abs((j - idxs[arr[i,j]][1]))
     return msum
-
 
 def MakeGoal(num):
     #generic goal state maker
