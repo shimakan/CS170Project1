@@ -83,7 +83,7 @@ class Node:
         nodes = [(self,0)] # queue of nodes
         visited = set([]) # for avoiding duplicate states
         depthq = [(0,0)] # queue of all the depths
-        pathcostq = [0] # queue of all the path costs
+        pathcostq = [(0,0)] # queue of all the path costs
         nodesExpanded = 0
 
         idxs = {} # dictionary {key = int : value = (x,y) coordinate of val in goal array}
@@ -94,7 +94,7 @@ class Node:
 
         while(nodes):
             node = nodes.pop()[0] 
-            print(f"Best Node: h(n): {node.HeuristicCost}, g(n): {node.PathCost} \n {node.BoardState} \n")
+            #print(f"Best Node: h(n): {node.HeuristicCost}, g(n): {node.PathCost} \n {node.BoardState} \n")
             visited.add(tuple(node.BoardState.flatten()))
 
             if(node.GoalTest(GoalState) == True):
@@ -109,47 +109,47 @@ class Node:
         # uniform cost search
         # enqueue nodes children of expanded nodes in order of cumulative cost
         depth = depthq.pop()[0]
-        cost = pathcostq.pop()
+        cost = pathcostq.pop()[0]
         # check validity left
         if(node.MoveLeft()[1]):
             state = node.MoveLeft()[0]
             if tuple(state.flatten()) not in visited: 
                 node.left = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = cost + 1, HeuristicCost = 0)
-                nodes.append((node.left, cost + 1))
+                nodes.append((node.left, cost + 1,depth+1))
                 depthq.append((depth + 1, cost + 1))
-                pathcostq.append(cost + 1)
+                pathcostq.append((cost + 1,depth+1))
         # check validity of down
         if(node.MoveDown()[1]):
             state = node.MoveDown()[0]
             if tuple(state.flatten()) not in visited: 
                 node.down = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = cost + 1, HeuristicCost = 0)
-                nodes.append((node.down, cost + 1))
+                nodes.append((node.down, cost + 1,depth+1))
                 depthq.append((depth + 1, cost + 1))
-                pathcostq.append(cost + 1)
+                pathcostq.append((cost + 1,depth+1))
         # check validity of up
         if(node.MoveUp()[1]):
             state = node.MoveUp()[0]
             if tuple(state.flatten()) not in visited: 
                 node.up = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = cost + 1, HeuristicCost = 0)
-                nodes.append((node.up, cost + 1))
+                nodes.append((node.up, cost + 1,depth+1))
                 depthq.append((depth + 1, cost + 1))
-                pathcostq.append(cost + 1)
+                pathcostq.append((cost + 1,depth+1))
         # check validity right
         if(node.MoveRight()[1]):
             state = node.MoveRight()[0]
             if tuple(state.flatten()) not in visited: 
                 node.right = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = cost + 1, HeuristicCost = 0)
-                nodes.append((node.right, cost + 1))
+                nodes.append((node.right, cost + 1,depth+1))
                 depthq.append((depth + 1, cost + 1))
-                pathcostq.append(cost + 1)
+                pathcostq.append((cost + 1,depth+1))
 
-        nodes = sorted(nodes, key=lambda x:x[1], reverse = True)
-        depthq = sorted(depthq, key=lambda x:x[1], reverse = True)
-        pathcostq = sorted(pathcostq, key=lambda x:x, reverse = True)
+        nodes = sorted(nodes, key=lambda x:(x[1], x[2]), reverse = True)
+        depthq = sorted(depthq, key=lambda x:(x[1], x[0]), reverse = True)
+        pathcostq = sorted(pathcostq, key=lambda x:(x[0], x[1]), reverse = True)
         return nodes, depthq, pathcostq
 
     def MisplacedTile(self, nodes, node, visited, depthq, pathcostq, goal, idxs):
@@ -165,9 +165,9 @@ class Node:
                 misplaced = np.sum(state != goal)
                 node.left = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
-                nodes.append((node.left, node.PathCost))
+                nodes.append((node.left, node.PathCost, depth+1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost, depth + 1))
         # check validity of down
         if(node.MoveDown()[1]):
             state = node.MoveDown()[0]
@@ -175,9 +175,9 @@ class Node:
                 misplaced = np.sum(state != goal)
                 node.down = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
-                nodes.append((node.down, node.PathCost))
+                nodes.append((node.down, node.PathCost, depth+1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost,depth+1))
         # check validity of up
         if(node.MoveUp()[1]):
             state = node.MoveUp()[0]
@@ -185,9 +185,9 @@ class Node:
                 misplaced = np.sum(state != goal)
                 node.up = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
-                nodes.append((node.up, node.PathCost))
+                nodes.append((node.up, node.PathCost,depth+1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost,depth+1))
         # check validity right
         if(node.MoveRight()[1]):
             state = node.MoveRight()[0]
@@ -195,13 +195,13 @@ class Node:
                 misplaced = np.sum(state != goal)
                 node.right = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + misplaced), HeuristicCost = misplaced)
-                nodes.append((node.right, node.PathCost))
+                nodes.append((node.right, node.PathCost,depth+1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost,depth+1))
 
-        nodes = sorted(nodes, key=lambda x:x[1], reverse = True)
-        depthq = sorted(depthq, key=lambda x:x[1], reverse = True)
-        pathcostq = sorted(pathcostq, key=lambda x:x, reverse = True)
+        nodes = sorted(nodes, key=lambda x:(x[1],x[2]), reverse = True)
+        depthq = sorted(depthq, key=lambda x:(x[1],x[0]), reverse = True)
+        pathcostq = sorted(pathcostq, key=lambda x:(x[0],x[1]), reverse = True)
         return nodes, depthq, pathcostq
 
     def Manhattan(self, nodes, node, visited, depthq, pathcostq, goal, idxs):
@@ -213,9 +213,9 @@ class Node:
                 mandist = man(state, goal, idxs)
                 node.left = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + mandist), HeuristicCost = mandist)
-                nodes.append((node.left, node.PathCost))
+                nodes.append((node.left, node.PathCost, depth + 1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost, depth + 1))
         # check validity of down
         if(node.MoveDown()[1]):
             state = node.MoveDown()[0]
@@ -223,9 +223,9 @@ class Node:
                 mandist = man(state, goal, idxs)
                 node.down = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + mandist), HeuristicCost = mandist)
-                nodes.append((node.down, node.PathCost))
+                nodes.append((node.down, node.PathCost, depth + 1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost, depth + 1))
         # check validity of up
         if(node.MoveUp()[1]):
             state = node.MoveUp()[0]
@@ -233,9 +233,9 @@ class Node:
                 mandist = man(state, goal, idxs)
                 node.up = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + mandist), HeuristicCost = mandist)
-                nodes.append((node.up, node.PathCost))
+                nodes.append((node.up, node.PathCost, depth + 1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost, depth + 1))
         # check validity right
         if(node.MoveRight()[1]):
             state = node.MoveRight()[0]
@@ -243,13 +243,13 @@ class Node:
                 mandist = man(state, goal, idxs)
                 node.right = Node(BoardState = state, Parent = node,\
                                  Depth = depth + 1, PathCost = ((depth + 1) + mandist), HeuristicCost = mandist)
-                nodes.append((node.right, node.PathCost))
+                nodes.append((node.right, node.PathCost, depth+1))
                 depthq.append((depth + 1, node.PathCost))
-                pathcostq.append(node.PathCost)
+                pathcostq.append((node.PathCost, depth+1))
 
-        nodes = sorted(nodes, key=lambda x:x[1], reverse = True)
-        depthq = sorted(depthq, key=lambda x:x[1], reverse = True)
-        pathcostq = sorted(pathcostq, key=lambda x:x, reverse = True)
+        nodes = sorted(nodes, key=lambda x:(x[1], x[2]), reverse = True)
+        depthq = sorted(depthq, key=lambda x:(x[1], x[0]), reverse = True)
+        pathcostq = sorted(pathcostq, key=lambda x:(x[0], x[1]), reverse = True)
         return nodes, depthq, pathcostq
                 
 def man(arr, goal, idxs):
@@ -258,7 +258,8 @@ def man(arr, goal, idxs):
     msum = 0
     for i in range(np.shape(goal)[0]):
         for j in range(np.shape(goal)[1]):
-            msum += abs((i - idxs[arr[i,j]][0])) + abs((j - idxs[arr[i,j]][1]))
+            if(arr[i,j] != 0):
+                msum += abs((i - idxs[arr[i,j]][0])) + abs((j - idxs[arr[i,j]][1]))
     return msum
 
 def MakeGoal(num):
