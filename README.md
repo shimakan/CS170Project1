@@ -1,4 +1,4 @@
-# CS171Project1
+# CS170Project1
 
 This project is the first project in Dr. Eamonn Keogh's Introduction to AI course at the University of California, Riverside for the Fall 2022 quarter. It 
 tests different search algorithms and heuristics on the sliding tile puzzle, a puzzle whose goal it is to get a semi-randomly distributed grid of numbers into 
